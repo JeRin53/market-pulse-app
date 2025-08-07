@@ -134,11 +134,3 @@ curl "http://localhost:9002/api/v1/market-pulse?ticker=GOOG"
 - 📈 **Improved Scoring**: Enhance the momentum scoring algorithm, potentially using weighted averages or other statistical measures.
 
 ---
-
-## 🙌 Contributing
-Pull requests are welcome! For major changes, please open an issue first to discuss what you would like to change.
-
----
-
-## 📜 License
-This project is licensed under the MIT License.
