@@ -6,6 +6,7 @@ import { Button } from "./ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "./ui/sheet";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { ThemeToggleButton } from "./theme-toggle";
 
 const Logo = () => (
     <Link href="/" className="flex items-center gap-2">
@@ -77,6 +78,7 @@ export default function Navbar() {
                 </nav>
 
                 <div className="flex flex-1 items-center justify-end gap-2">
+                    <ThemeToggleButton />
                     <Button variant="outline">Sign In</Button>
                 </div>
             </div>
