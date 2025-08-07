@@ -6,7 +6,7 @@ This is a Next.js application built with Firebase Studio that provides AI-driven
 
 -   **AI Analysis**: Enter a stock ticker and get an instant market pulse.
 -   **Data-Driven Insights**: Analysis is based on the latest financial news and 5-day price momentum.
--   **Real-time Data**: Utilizes the Alpha Vantage API to fetch up-to-date information.
+-   **Real-time Data**: Utilizes the Alpha Vantage API for price data and NewsAPI for news.
 -   **Clear UI**: Built with Next.js, React, ShadCN UI, and Tailwind CSS for a clean and responsive user experience.
 -   **Extensible AI Flows**: Powered by Genkit, allowing for easy modification and extension of the AI logic.
 -   **In-Memory Caching**: Reduces redundant API calls with a 10-minute in-memory cache for stock data.
@@ -17,6 +17,7 @@ This is a Next.js application built with Firebase Studio that provides AI-driven
 
 -   Node.js (v18 or later)
 -   An API key from [Alpha Vantage](https://www.alphavantage.co/support/#api-key)
+-   An API key from [NewsAPI](https://newsapi.org/)
 -   An API key from [Google AI Studio](https://aistudio.google.com/) for the Gemini model.
 
 ### Setup
@@ -38,6 +39,7 @@ This is a Next.js application built with Firebase Studio that provides AI-driven
     ```env
     # .env
     ALPHA_VANTAGE_API_KEY=YOUR_ALPHA_VANTAGE_API_KEY
+    NEWS_API_KEY=YOUR_NEWS_API_KEY
     GEMINI_API_KEY=YOUR_GEMINI_API_KEY
     ```
 
@@ -60,7 +62,7 @@ This is a Next.js application built with Firebase Studio that provides AI-driven
     -   `analysis-result-card.tsx`: The card that displays the analysis output.
     -   `ui/`: ShadCN UI components.
 -   `src/services/`: Services for interacting with external APIs.
-    -   `alpha-vantage.ts`: Fetches data from the Alpha Vantage API.
+    -   `alpha-vantage.ts`: Fetches data from the Alpha Vantage API and NewsAPI.
 -   `public/`: Static assets.
 -   `tailwind.config.ts`: Tailwind CSS configuration.
 -   `next.config.ts`: Next.js configuration.
@@ -69,7 +71,7 @@ This is a Next.js application built with Firebase Studio that provides AI-driven
 
 -   **Framework**: Next.js was chosen for its powerful features like Server Components, Server Actions, and easy routing, which are well-suited for this type of application.
 -   **AI Integration**: Genkit provides a structured way to define and manage AI flows, making it easy to integrate with different models and tools. Using tools within the prompt allows the LLM to fetch data dynamically as needed.
--   **External APIs**: Alpha Vantage was used for its free tier and comprehensive stock data. A paid, more robust data source would be a good next step for a production application.
+-   **External APIs**: Alpha Vantage was used for its free tier and comprehensive stock data. NewsAPI was used for up-to-date news. A paid, more robust data source would be a good next step for a production application.
 -   **Styling**: ShadCN UI and Tailwind CSS were used to quickly build a modern and professional-looking UI without writing custom CSS from scratch.
 -   **State Management**: State is managed with a combination of `useState`, `useEffect`, and Next.js Server Actions with `useFormState`. This keeps the client-side logic simple and leverages the power of the server for data fetching and mutations.
 

@@ -1,13 +1,15 @@
 /**
- * @fileOverview Service for fetching data from the Alpha Vantage API.
- * This service is used to get stock prices and news for a given ticker.
- * It requires an API key to be set in the environment variables.
+ * @fileOverview Service for fetching data from the Alpha Vantage API and NewsAPI.
+ * This service is used to get stock prices from Alpha Vantage and news from NewsAPI.
+ * It requires API keys to be set in the environment variables.
  */
 
 import {z} from 'zod';
 
-const API_KEY = process.env.ALPHA_VANTAGE_API_KEY;
-const BASE_URL = 'https://www.alphavantage.co/query';
+const ALPHA_VANTAGE_API_KEY = process.env.ALPHA_VANTAGE_API_KEY;
+const NEWS_API_KEY = process.env.NEWS_API_KEY;
+const ALPHA_VANTAGE_BASE_URL = 'https://www.alphavantage.co/query';
+const NEWS_API_BASE_URL = 'https://newsapi.org/v2/everything';
 const CACHE_TTL = 10 * 60 * 1000; // 10 minutes
 
 interface CacheEntry<T> {
@@ -92,11 +94,11 @@ export async function getStockMomentum(ticker: string): Promise<Momentum> {
     return cachedData;
   }
 
-  if (!API_KEY) {
+  if (!ALPHA_VANTAGE_API_KEY) {
     throw new Error('ALPHA_VANTAGE_API_KEY is not set.');
   }
 
-  const url = `${BASE_URL}?function=TIME_SERIES_DAILY&symbol=${ticker}&apikey=${API_KEY}`;
+  const url = `${ALPHA_VANTAGE_BASE_URL}?function=TIME_SERIES_DAILY&symbol=${ticker}&apikey=${ALPHA_VANTAGE_API_KEY}`;
   const response = await fetch(url);
 
   if (!response.ok) {
@@ -129,18 +131,21 @@ export const NewsArticleSchema = z.object({
 });
 export type NewsArticle = z.infer<typeof NewsArticleSchema>;
 
-const AlphaVantageNewsItemSchema = z.object({
+const NewsApiArticleSchema = z.object({
     title: z.string(),
-    summary: z.string(),
+    description: z.string().nullable(),
     url: z.string(),
 });
   
-const AlphaVantageNewsResponseSchema = z.object({
-    feed: z.array(AlphaVantageNewsItemSchema),
+const NewsApiResponseSchema = z.object({
+    status: z.string(),
+    totalResults: z.number(),
+    articles: z.array(NewsApiArticleSchema),
 });
 
+
 /**
- * Fetches the latest news for a given stock ticker from Alpha Vantage.
+ * Fetches the latest news for a given stock ticker from NewsAPI.
  * @param ticker - The stock ticker symbol.
  * @returns An array of news articles.
  */
@@ -150,10 +155,10 @@ export async function getStockNews(ticker: string): Promise<NewsArticle[]> {
         return cachedData;
     }
 
-    if (!API_KEY) {
-        throw new Error('ALPHA_VANTAGE_API_KEY is not set.');
+    if (!NEWS_API_KEY) {
+        throw new Error('NEWS_API_KEY is not set.');
     }
-    const url = `${BASE_URL}?function=NEWS_SENTIMENT&tickers=${ticker}&apikey=${API_KEY}`;
+    const url = `${NEWS_API_BASE_URL}?q=${ticker}&apiKey=${NEWS_API_KEY}&pageSize=5&sortBy=publishedAt`;
     const response = await fetch(url);
 
     if (!response.ok) {
@@ -162,19 +167,19 @@ export async function getStockNews(ticker: string): Promise<NewsArticle[]> {
 
     const data = await response.json();
 
-    if (data.Information) {
-        throw new Error(`Alpha Vantage API Error: ${data.Information}`);
+    if (data.status === 'error') {
+        throw new Error(`NewsAPI Error: ${data.message}`);
     }
 
-    const parsed = AlphaVantageNewsResponseSchema.safeParse(data);
+    const parsed = NewsApiResponseSchema.safeParse(data);
 
     if (!parsed.success) {
         return [];
     }
     
-    const result = parsed.data.feed.slice(0, 5).map(item => ({
+    const result = parsed.data.articles.map(item => ({
         title: item.title,
-        summary: item.summary,
+        summary: item.description || '',
         url: item.url,
     }));
     setCache(newsCache, ticker, result);
