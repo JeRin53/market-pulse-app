@@ -1,7 +1,7 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { useFormState, useFormStatus } from 'react-dom';
+import { useEffect, useState, useActionState } from 'react';
+import { useFormStatus } from 'react-dom';
 import { getStockAnalysis, type FormState } from '@/app/actions';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -57,7 +57,7 @@ const ResultSkeleton = () => (
 
 
 export default function StockAnalyzer() {
-  const [state, formAction] = useFormState(getStockAnalysis, initialState);
+  const [state, formAction] = useActionState(getStockAnalysis, initialState);
   const { pending } = useFormStatus();
   const { toast } = useToast();
   const [result, setResult] = useState<AnalyzeStockDataOutput | null>(sampleResult);
