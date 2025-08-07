@@ -55,7 +55,19 @@ This is a Next.js application built with Firebase Studio that provides AI-driven
     ```
     The application will be available at `http://localhost:9002`.
 
-### Sample API Request (cURL)
+### API Specification
+
+The application exposes a single REST endpoint for getting stock analysis.
+
+**Endpoint:** `GET /api/v1/market-pulse`
+
+**Query Parameters:**
+
+| Parameter | Type   | Description                      | Required |
+| :-------- | :----- | :------------------------------- | :------- |
+| `ticker`  | string | The stock ticker symbol to analyze. | Yes      |
+
+**Sample Request (cURL):**
 
 You can test the API endpoint using `curl`. Make sure your development server is running, then execute the following command in your terminal:
 
@@ -63,26 +75,25 @@ You can test the API endpoint using `curl`. Make sure your development server is
 curl "http://localhost:9002/api/v1/market-pulse?ticker=GOOG"
 ```
 
-You should receive a JSON response with the stock analysis.
+**Sample Response:**
 
-## Project Structure
-
--   `src/app/`: The main Next.js application pages and layout.
-    -   `page.tsx`: The home page component.
-    -   `actions.ts`: Server Actions for handling form submissions.
-    -   `api/v1/market-pulse/route.ts`: The REST API endpoint.
--   `src/ai/`: Contains all Genkit-related code.
-    -   `genkit.ts`: Genkit initialization and configuration.
-    -   `flows/analyze-stock-data.ts`: The core Genkit flow for analyzing stocks.
--   `src/components/`: Reusable React components.
-    -   `stock-analyzer.tsx`: The main component for user input and displaying results.
-    -   `analysis-result-card.tsx`: The card that displays the analysis output.
-    -   `ui/`: ShadCN UI components.
--   `src/services/`: Services for interacting with external APIs.
-    -   `alpha-vantage.ts`: Fetches data from the Alpha Vantage API and NewsAPI.
--   `public/`: Static assets.
--   `tailwind.config.ts`: Tailwind CSS configuration.
--   `next.config.ts`: Next.js configuration.
+```json
+{
+  "ticker": "GOOG",
+  "momentum": {
+    "returns": [0.001, 0.005, -0.002, 0.01, 0.003],
+    "score": 0.0034
+  },
+  "news": [
+    {
+      "title": "Google parent Alphabet posts record profit...",
+      "summary": "Alphabet Inc on Tuesday posted a record quarterly profit..."
+    }
+  ],
+  "pulse": "bullish",
+  "explanation": "Based on the positive 5-day returns and bullish sentiment in recent news about record profits, the outlook for GOOG is bullish."
+}
+```
 
 ## Design and Trade-offs
 
@@ -97,3 +108,4 @@ You should receive a JSON response with the stock analysis.
 -   **Add user accounts**: Allow users to save their analyzed stocks and track their portfolio.
 -   **More advanced charts**: Add more detailed historical price charts and technical indicators.
 -   **Deploy to production**: Use a service like Firebase App Hosting or Vercel for easy deployment.
+-   **Expand Data Sources**: Integrate additional financial data sources for more robust analysis.
