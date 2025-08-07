@@ -3,7 +3,6 @@ import './globals.css';
 import { Toaster } from "@/components/ui/toaster"
 import Navbar from '@/components/navbar';
 import Footer from '@/components/footer';
-import { Analytics } from "@vercel/analytics/react"
 
 export const metadata: Metadata = {
   title: 'Market Pulse',
@@ -31,7 +30,6 @@ export default function RootLayout({
           <Footer />
         </div>
         <Toaster />
-        <Analytics />
       </body>
     </html>
   );
