@@ -1,111 +1,162 @@
-# Market Pulse: AI-Powered Stock Analysis
+# 📊 Market Pulse – AI-Powered Stock Sentiment App
 
-This is a Next.js application built with Firebase Studio that provides AI-driven analysis for stock tickers. It uses Genkit to create a flow that fetches real-time news and momentum data, then uses a Large Language Model (LLM) to determine a "pulse" (bullish, bearish, or neutral) and provide a supporting explanation.
+Market Pulse is a full-stack application that predicts whether a stock (e.g., AAPL, TSLA, GOOGL) is **bullish**, **bearish**, or **neutral** for the next trading day using AI-generated insights based on price momentum and news data.
 
-## Features
+---
 
--   **AI Analysis**: Enter a stock ticker and get an instant market pulse.
--   **REST API**: Exposes a `GET /api/v1/market-pulse` endpoint for programmatic access.
--   **Data-Driven Insights**: Analysis is based on the latest financial news and 5-day price momentum.
--   **Real-time Data**: Utilizes the Alpha Vantage API for price data and NewsAPI for news.
--   **Clear UI**: Built with Next.js, React, ShadCN UI, and Tailwind CSS for a clean and responsive user experience.
--   **Extensible AI Flows**: Powered by Genkit, allowing for easy modification and extension of the AI logic.
--   **In-Memory Caching**: Reduces redundant API calls with a 10-minute in-memory cache for stock data.
+## 🔧 Tech Stack
 
-## Getting Started
+- **Frontend**: React + TypeScript + Tailwind CSS + ShadCN UI
+- **Backend**: FastAPI (Python)
+- **APIs**: Alpha Vantage, NewsAPI, Gemini (via Google AI Studio)
+- **Auth**: Firebase Authentication (Google Sign-In)
+- **Deployment**: Firebase Hosting (frontend), Railway/Render (backend)
 
-### Prerequisites
+---
 
--   Node.js (v18 or later)
--   An API key from [Alpha Vantage](https://www.alphavantage.co/support/#api-key)
--   An API key from [NewsAPI](https://newsapi.org/)
--   An API key from [Google AI Studio](https://aistudio.google.com/) for the Gemini model.
+## 🚀 Features
 
-### Setup
+- 📈 Momentum analysis based on last 5 trading-day returns
+- 📰 Latest 5 headlines from NewsAPI
+- 🧠 Gemini-powered LLM to determine sentiment
+- 🟢 Chat-style React UI with dark/light theme toggle
+- 🔍 Expandable JSON viewer for full analysis
+- 🔐 Google Sign-In authentication
+- 📉 Recharts sparkline for price trends
+- 🧭 Navigation with Home, Sign In, About, and Analysis sections
+- ✨ Subtle animations for interactive UI
 
-1.  **Clone the repository:**
-    ```bash
-    git clone <repository-url>
-    cd <repository-directory>
-    ```
+---
 
-2.  **Install dependencies:**
-    ```bash
-    npm install
-    ```
+## 🛠️ Getting Started
 
-3.  **Set up environment variables:**
-    Create a `.env` file in the root of the project and add your API keys.
-
-    ```env
-    # .env
-    # Get your key from https://www.alphavantage.co/support/#api-key
-    ALPHA_VANTAGE_API_KEY=YOUR_ALPHA_VANTAGE_API_KEY
-
-    # Get your key from https://newsapi.org/
-    NEWS_API_KEY=YOUR_NEWS_API_KEY
-
-    # Get your key from https://aistudio.google.com/
-    GEMINI_API_KEY=YOUR_GEMINI_API_KEY
-    ```
-
-4.  **Run the development server:**
-    ```bash
-    npm run dev
-    ```
-    The application will be available at `http://localhost:9002`.
-
-### API Specification
-
-The application exposes a single REST endpoint for getting stock analysis.
-
-**Endpoint:** `GET /api/v1/market-pulse`
-
-**Query Parameters:**
-
-| Parameter | Type   | Description                      | Required |
-| :-------- | :----- | :------------------------------- | :------- |
-| `ticker`  | string | The stock ticker symbol to analyze. | Yes      |
-
-**Sample Request (cURL):**
-
-You can test the API endpoint using `curl`. Make sure your development server is running, then execute the following command in your terminal:
-
+### 📂 Clone the Repository
 ```bash
-curl "http://localhost:9002/api/v1/market-pulse?ticker=GOOG"
+git clone https://github.com/yourname/market-pulse.git
+cd market-pulse
 ```
 
-**Sample Response:**
+### 🧪 Backend Setup (FastAPI)
+```bash
+cd backend
+python -m venv env
+source env/bin/activate
+pip install -r requirements.txt
+uvicorn main:app --reload
+```
 
+### 🌐 Frontend Setup (React)
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+---
+
+## 🔐 Environment Variables
+Create a `.env` file in the `backend/` folder:
+```env
+ALPHA_VANTAGE_API_KEY=your_alpha_key
+NEWS_API_KEY=your_news_key
+GEMINI_API_KEY=your_gemini_key
+```
+
+For frontend (if using env vars):
+```env
+VITE_API_URL=https://your-backend-url.com
+```
+
+---
+
+## 📡 API Specification
+
+### ✅ Endpoint
+```
+GET /api/v1/market-pulse?ticker=MSFT
+```
+
+### 📄 Sample curl Request
+```bash
+curl http://localhost:8000/api/v1/market-pulse?ticker=MSFT
+```
+
+### 📦 Sample Response
 ```json
 {
-  "ticker": "GOOG",
+  "ticker": "MSFT",
+  "as_of": "2025-08-07",
   "momentum": {
-    "returns": [0.001, 0.005, -0.002, 0.01, 0.003],
-    "score": 0.0034
+    "returns": [-0.3, 0.4, 1.1, -0.2, 0.7],
+    "score": 0.34
   },
   "news": [
-    {
-      "title": "Google parent Alphabet posts record profit...",
-      "summary": "Alphabet Inc on Tuesday posted a record quarterly profit..."
-    }
+    { "title": "Microsoft launches new AI chip", "description": "...", "url": "..." }
   ],
   "pulse": "bullish",
-  "explanation": "Based on the positive 5-day returns and bullish sentiment in recent news about record profits, the outlook for GOOG is bullish."
+  "llm_explanation": "Momentum is moderately positive..."
 }
 ```
 
-## Design and Trade-offs
+---
 
--   **Framework**: Next.js was chosen for its powerful features like Server Components, Server Actions, and easy routing, which are well-suited for this type of application.
--   **AI Integration**: Genkit provides a structured way to define and manage AI flows, making it easy to integrate with different models and tools. Using tools within the prompt allows the LLM to fetch data dynamically as needed.
--   **External APIs**: Alpha Vantage was used for its free tier and comprehensive stock data. NewsAPI was used for up-to-date news. A paid, more robust data source would be a good next step for a production application.
--   **Styling**: ShadCN UI and Tailwind CSS were used to quickly build a modern and professional-looking UI without writing custom CSS from scratch.
--   **State Management**: State is managed with a combination of `useState`, `useEffect`, and Next.js Server Actions with `useFormState`. This keeps the client-side logic simple and leverages the power of the server for data fetching and mutations.
+## 🧪 Testing
 
-## Next Steps
+### Backend:
+```bash
+pytest backend/tests/
+```
 
--   **Add user accounts**: Allow users to save their analyzed stocks and track their portfolio.
--   **More advanced charts**: Add more detailed historical price charts and technical indicators.
--   **Deploy to production**: Use a service like Firebase App Hosting or Vercel for easy deployment.
--   **Expand Data Sources**: Integrate additional financial data sources for more robust analysis.
+### Frontend:
+```bash
+npm run test
+```
+
+---
+
+## ⚙️ Deployment
+
+### 🚀 Frontend (Firebase Hosting)
+```bash
+npm run build
+firebase login
+firebase init
+firebase deploy
+```
+
+### 🚀 Backend (Railway / Render)
+- Connect GitHub repo
+- Set environment variables
+- Deploy FastAPI with Uvicorn
+
+---
+
+## 🧠 Design & Trade-offs
+
+- ✅ **Server Components** via Next.js for better SSR
+- ✅ Used `Genkit` for composable AI flows
+- ⚖️ Trade-off: Free-tier APIs limit frequency and accuracy
+- 🧠 External tools fetch data in real time within prompts
+- 🧰 Sparkline charts use `Recharts`
+- 💡 Cards styled with `ShadCN` and animated via `Framer Motion`
+- 🚀 Google Auth via Firebase for secure sign-in
+
+---
+
+## 🛤️ Next Steps
+
+- 🔐 Add user accounts to track ticker history
+- 📊 More technical indicators & trend visualizations
+- 🧠 Allow switching LLMs dynamically
+- 🌐 Production deployment on Vercel/Railway
+- 📈 Improve momentum scoring using weighted averages
+
+---
+
+## 🙌 Contributing
+Pull requests welcome! Please open issues first to discuss major changes.
+
+---
+
+## 📜 License
+MIT © 2025 Jerrin Joejoe
