@@ -8,6 +8,37 @@ import {z} from 'zod';
 
 const API_KEY = process.env.ALPHA_VANTAGE_API_KEY;
 const BASE_URL = 'https://www.alphavantage.co/query';
+const CACHE_TTL = 10 * 60 * 1000; // 10 minutes
+
+interface CacheEntry<T> {
+  timestamp: number;
+  data: T;
+}
+
+const momentumCache = new Map<string, CacheEntry<Momentum>>();
+const newsCache = new Map<string, CacheEntry<NewsArticle[]>>();
+
+function setCache<T>(cache: Map<string, CacheEntry<T>>, key: string, data: T) {
+  const entry: CacheEntry<T> = {
+    timestamp: Date.now(),
+    data: data,
+  };
+  cache.set(key, entry);
+}
+
+function getCache<T>(cache: Map<string, CacheEntry<T>>, key: string): T | null {
+  const entry = cache.get(key);
+  if (!entry) {
+    return null;
+  }
+  const isExpired = (Date.now() - entry.timestamp) > CACHE_TTL;
+  if (isExpired) {
+    cache.delete(key);
+    return null;
+  }
+  return entry.data;
+}
+
 
 const TimeSeriesEntrySchema = z.object({
   '1. open': z.string(),
@@ -56,6 +87,11 @@ function calculateMomentum(prices: number[]): Momentum {
  * @returns The momentum data for the stock.
  */
 export async function getStockMomentum(ticker: string): Promise<Momentum> {
+  const cachedData = getCache(momentumCache, ticker);
+  if (cachedData) {
+    return cachedData;
+  }
+
   if (!API_KEY) {
     throw new Error('ALPHA_VANTAGE_API_KEY is not set.');
   }
@@ -80,8 +116,10 @@ export async function getStockMomentum(ticker: string): Promise<Momentum> {
   const timeSeries = parsed.data['Time Series (Daily)'];
   const dates = Object.keys(timeSeries).sort().reverse();
   const recentPrices = dates.slice(0, 6).map(date => parseFloat(timeSeries[date]['4. close']));
-
-  return calculateMomentum(recentPrices.reverse());
+  
+  const result = calculateMomentum(recentPrices.reverse());
+  setCache(momentumCache, ticker, result);
+  return result;
 }
 
 export const NewsArticleSchema = z.object({
@@ -107,6 +145,11 @@ const AlphaVantageNewsResponseSchema = z.object({
  * @returns An array of news articles.
  */
 export async function getStockNews(ticker: string): Promise<NewsArticle[]> {
+    const cachedData = getCache(newsCache, ticker);
+    if (cachedData) {
+        return cachedData;
+    }
+
     if (!API_KEY) {
         throw new Error('ALPHA_VANTAGE_API_KEY is not set.');
     }
@@ -128,10 +171,12 @@ export async function getStockNews(ticker: string): Promise<NewsArticle[]> {
     if (!parsed.success) {
         return [];
     }
-
-    return parsed.data.feed.slice(0, 5).map(item => ({
+    
+    const result = parsed.data.feed.slice(0, 5).map(item => ({
         title: item.title,
         summary: item.summary,
         url: item.url,
     }));
+    setCache(newsCache, ticker, result);
+    return result;
 }

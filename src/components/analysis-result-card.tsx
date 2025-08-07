@@ -7,6 +7,8 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import type { AnalyzeStockDataOutput } from "@/ai/flows/analyze-stock-data";
 import { cn } from "@/lib/utils";
 import { ArrowDown, ArrowUp } from "lucide-react";
+import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis } from "recharts";
+import { ChartContainer, ChartTooltipContent } from "./ui/chart";
 
 interface AnalysisResultCardProps {
   result: AnalyzeStockDataOutput;
@@ -16,6 +18,11 @@ interface AnalysisResultCardProps {
 export function AnalysisResultCard({ result, isSample = false }: AnalysisResultCardProps) {
     
   const momentumScorePercentage = (result.momentum.score + 1) * 50;
+
+  const chartData = result.momentum.returns.map((r, i) => ({
+    day: `Day ${i - 5}`,
+    value: r,
+  }));
 
   return (
     <Card className="w-full transform transition-all duration-500 animate-in fade-in-0 zoom-in-95">
@@ -58,13 +65,35 @@ export function AnalysisResultCard({ result, isSample = false }: AnalysisResultC
             </div>
             <div>
                 <h3 className="text-sm font-medium text-muted-foreground mb-2">Last 5 Trading-Day Returns</h3>
-                <div className="flex items-center gap-2 flex-wrap">
-                    {result.momentum.returns.map((r, i) => (
-                        <div key={i} className={cn("flex items-center gap-1 p-1 rounded-md text-xs", r >= 0 ? 'bg-green-500/10 text-green-400' : 'bg-red-500/10 text-red-400')}>
-                            {r >= 0 ? <ArrowUp className="h-3 w-3" /> : <ArrowDown className="h-3 w-3" />}
-                            <span>{(r*100).toFixed(2)}%</span>
-                        </div>
-                    ))}
+                 <div className="h-[50px] w-full">
+                   <ChartContainer config={{}} className="h-full w-full">
+                      <AreaChart data={chartData} margin={{ top: 5, right: 10, left: 10, bottom: 0 }}>
+                          <defs>
+                              <linearGradient id="colorPositive" x1="0" y1="0" x2="0" y2="1">
+                                  <stop offset="5%" stopColor="var(--color-chart-2)" stopOpacity={0.8}/>
+                                  <stop offset="95%" stopColor="var(--color-chart-2)" stopOpacity={0}/>
+                              </linearGradient>
+                              <linearGradient id="colorNegative" x1="0" y1="0" x2="0" y2="1">
+                                  <stop offset="5%" stopColor="var(--color-chart-1)" stopOpacity={0.8}/>
+                                  <stop offset="95%" stopColor="var(--color-chart-1)" stopOpacity={0}/>
+                              </linearGradient>
+                          </defs>
+                          <Tooltip
+                            cursor={{ fill: "hsl(var(--muted))" }}
+                            content={<ChartTooltipContent
+                                formatter={(value) => `${(Number(value) * 100).toFixed(2)}%`}
+                                indicator="dot"
+                             />}
+                           />
+                           <Area
+                            type="monotone"
+                            dataKey="value"
+                            strokeWidth={2}
+                            stroke={result.momentum.score >= 0 ? 'var(--color-chart-2)' : 'var(--color-chart-1)'}
+                            fill={result.momentum.score >= 0 ? "url(#colorPositive)" : "url(#colorNegative)"}
+                            />
+                      </AreaChart>
+                   </ChartContainer>
                 </div>
             </div>
         </div>
