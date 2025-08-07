@@ -9,6 +9,7 @@ import { AnalysisResultCard } from '@/components/analysis-result-card';
 import type { AnalyzeStockDataOutput } from '@/ai/flows/analyze-stock-data';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2 } from 'lucide-react';
+import { Skeleton } from './ui/skeleton';
 
 const initialState: FormState = {
   message: '',
@@ -39,8 +40,25 @@ function SubmitButton() {
   );
 }
 
+const ResultSkeleton = () => (
+    <div className="w-full space-y-4">
+      <div className="flex justify-between items-center">
+        <Skeleton className="h-10 w-1/4" />
+        <Skeleton className="h-8 w-1/6" />
+      </div>
+      <Skeleton className="h-24 w-full" />
+      <div className="grid grid-cols-2 gap-4">
+        <Skeleton className="h-12 w-full" />
+        <Skeleton className="h-12 w-full" />
+      </div>
+      <Skeleton className="h-32 w-full" />
+    </div>
+);
+
+
 export default function StockAnalyzer() {
   const [state, formAction] = useFormState(getStockAnalysis, initialState);
+  const { pending } = useFormStatus();
   const { toast } = useToast();
   const [result, setResult] = useState<AnalyzeStockDataOutput | null>(sampleResult);
   const [showSample, setShowSample] = useState(true);
@@ -56,19 +74,27 @@ export default function StockAnalyzer() {
           title: "Analysis Failed",
           description: state.message,
         });
+        setResult(null); // Clear result on error
       }
     }
   }, [state, toast]);
 
+  const handleFormAction = (formData: FormData) => {
+    setResult(null); // Clear previous results immediately
+    setShowSample(false);
+    formAction(formData);
+  };
+
+
   return (
-    <section id="analyzer" className="w-full pb-20 md:pb-24 lg:pb-32">
+    <section id="analyzer" className="w-full py-12">
       <div className="container px-4 md:px-6">
         <div className="mx-auto max-w-2xl">
-          <form action={formAction} className="flex flex-col md:flex-row items-center gap-4 rounded-lg border p-4 bg-card/50 shadow-lg">
+          <form action={handleFormAction} className="flex flex-col md:flex-row items-center gap-4 rounded-lg border p-4 bg-card/60 backdrop-blur-sm shadow-lg">
             <Input
               name="ticker"
               placeholder="Enter stock ticker (e.g., AAPL)"
-              className="h-12 text-lg bg-background"
+              className="h-12 text-lg bg-background border-accent/30 focus:border-accent"
               required
               aria-label="Stock Ticker"
             />
@@ -77,7 +103,8 @@ export default function StockAnalyzer() {
         </div>
 
         <div className="mt-12 mx-auto max-w-4xl">
-            {result && <AnalysisResultCard result={result} isSample={showSample} />}
+            {pending && <ResultSkeleton />}
+            {!pending && result && <AnalysisResultCard result={result} isSample={showSample} />}
         </div>
       </div>
     </section>

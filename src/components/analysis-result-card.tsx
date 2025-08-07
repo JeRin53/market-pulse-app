@@ -6,8 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import type { AnalyzeStockDataOutput } from "@/ai/flows/analyze-stock-data";
 import { cn } from "@/lib/utils";
-import { ArrowDown, ArrowUp } from "lucide-react";
-import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis } from "recharts";
+import { Area, AreaChart, Tooltip } from "recharts";
 import { ChartContainer, ChartTooltipContent } from "./ui/chart";
 
 interface AnalysisResultCardProps {
@@ -25,7 +24,7 @@ export function AnalysisResultCard({ result, isSample = false }: AnalysisResultC
   }));
 
   return (
-    <Card className="w-full transform transition-all duration-500 animate-in fade-in-0 zoom-in-95">
+    <Card className="w-full transform transition-all duration-500 animate-in fade-in-0 zoom-in-95 bg-card/60 backdrop-blur-sm border-accent/20">
       <CardHeader className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <div className="flex items-center gap-4">
@@ -102,7 +101,7 @@ export function AnalysisResultCard({ result, isSample = false }: AnalysisResultC
             <h3 className="text-sm font-medium text-muted-foreground mb-2">Latest News</h3>
             <div className="space-y-3">
                 {result.news.slice(0, 5).map((article, index) => (
-                    <a key={index} href={article.url} target="_blank" rel="noopener noreferrer" className="block p-3 rounded-lg border bg-card hover:bg-secondary transition-colors">
+                    <a key={index} href={article.url} target="_blank" rel="noopener noreferrer" className="block p-3 rounded-lg border bg-card/80 hover:bg-secondary transition-colors hover:border-accent">
                         <p className="font-semibold text-foreground/90">{article.title}</p>
                         <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{article.summary}</p>
                     </a>
