@@ -5,6 +5,7 @@ This is a Next.js application built with Firebase Studio that provides AI-driven
 ## Features
 
 -   **AI Analysis**: Enter a stock ticker and get an instant market pulse.
+-   **REST API**: Exposes a `GET /api/v1/market-pulse` endpoint for programmatic access.
 -   **Data-Driven Insights**: Analysis is based on the latest financial news and 5-day price momentum.
 -   **Real-time Data**: Utilizes the Alpha Vantage API for price data and NewsAPI for news.
 -   **Clear UI**: Built with Next.js, React, ShadCN UI, and Tailwind CSS for a clean and responsive user experience.
@@ -34,12 +35,17 @@ This is a Next.js application built with Firebase Studio that provides AI-driven
     ```
 
 3.  **Set up environment variables:**
-    Create a `.env` file in the root of the project and add your API keys:
+    Create a `.env` file in the root of the project and add your API keys.
 
     ```env
     # .env
+    # Get your key from https://www.alphavantage.co/support/#api-key
     ALPHA_VANTAGE_API_KEY=YOUR_ALPHA_VANTAGE_API_KEY
+
+    # Get your key from https://newsapi.org/
     NEWS_API_KEY=YOUR_NEWS_API_KEY
+
+    # Get your key from https://aistudio.google.com/
     GEMINI_API_KEY=YOUR_GEMINI_API_KEY
     ```
 
@@ -49,11 +55,22 @@ This is a Next.js application built with Firebase Studio that provides AI-driven
     ```
     The application will be available at `http://localhost:9002`.
 
+### Sample API Request (cURL)
+
+You can test the API endpoint using `curl`. Make sure your development server is running, then execute the following command in your terminal:
+
+```bash
+curl "http://localhost:9002/api/v1/market-pulse?ticker=GOOG"
+```
+
+You should receive a JSON response with the stock analysis.
+
 ## Project Structure
 
 -   `src/app/`: The main Next.js application pages and layout.
     -   `page.tsx`: The home page component.
     -   `actions.ts`: Server Actions for handling form submissions.
+    -   `api/v1/market-pulse/route.ts`: The REST API endpoint.
 -   `src/ai/`: Contains all Genkit-related code.
     -   `genkit.ts`: Genkit initialization and configuration.
     -   `flows/analyze-stock-data.ts`: The core Genkit flow for analyzing stocks.
@@ -77,7 +94,6 @@ This is a Next.js application built with Firebase Studio that provides AI-driven
 
 ## Next Steps
 
--   **Add more data sources**: Integrate additional financial data APIs for more comprehensive analysis (e.g., fundamentals, analyst ratings).
--   **Implement user accounts**: Allow users to save their analyzed stocks and track their portfolio.
+-   **Add user accounts**: Allow users to save their analyzed stocks and track their portfolio.
 -   **More advanced charts**: Add more detailed historical price charts and technical indicators.
 -   **Deploy to production**: Use a service like Firebase App Hosting or Vercel for easy deployment.
