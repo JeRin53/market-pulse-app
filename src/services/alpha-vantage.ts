@@ -53,12 +53,38 @@ function calculateMomentum(prices: number[]): Momentum {
   };
 }
 
+// In-memory cache with a TTL
+const cache = new Map<string, { data: any; expiry: number }>();
+const CACHE_TTL = 10 * 60 * 1000; // 10 minutes
+
+function getFromCache(key: string) {
+    const cached = cache.get(key);
+    if (cached && cached.expiry > Date.now()) {
+        return cached.data;
+    }
+    cache.delete(key);
+    return null;
+}
+
+function setInCache(key: string, data: any) {
+    const expiry = Date.now() + CACHE_TTL;
+    cache.set(key, { data, expiry });
+}
+
+
 /**
  * Fetches the daily prices for a given stock ticker from Alpha Vantage.
  * @param ticker - The stock ticker symbol.
  * @returns The momentum data for the stock.
  */
 export async function getStockMomentum(ticker: string): Promise<Momentum> {
+  const cacheKey = `momentum:${ticker}`;
+  const cachedData = getFromCache(cacheKey);
+  if (cachedData) {
+    console.log(`Returning cached momentum data for ${ticker}`);
+    return cachedData;
+  }
+
   if (!ALPHA_VANTAGE_API_KEY) {
     throw new Error('ALPHA_VANTAGE_API_KEY is not set.');
   }
@@ -85,6 +111,7 @@ export async function getStockMomentum(ticker: string): Promise<Momentum> {
   const recentPrices = dates.slice(0, 6).map(date => parseFloat(timeSeries[date]['4. close']));
   
   const result = calculateMomentum(recentPrices.reverse());
+  setInCache(cacheKey, result);
   return result;
 }
 
@@ -114,6 +141,13 @@ const NewsApiResponseSchema = z.object({
  * @returns An array of news articles.
  */
 export async function getStockNews(ticker: string): Promise<NewsArticle[]> {
+    const cacheKey = `news:${ticker}`;
+    const cachedData = getFromCache(cacheKey);
+    if (cachedData) {
+        console.log(`Returning cached news data for ${ticker}`);
+        return cachedData;
+    }
+
     if (!NEWS_API_KEY) {
         throw new Error('NEWS_API_KEY is not set.');
     }
@@ -141,5 +175,7 @@ export async function getStockNews(ticker: string): Promise<NewsArticle[]> {
         summary: item.description || '',
         url: item.url,
     }));
+
+    setInCache(cacheKey, result);
     return result;
 }
