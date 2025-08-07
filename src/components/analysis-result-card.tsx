@@ -101,7 +101,7 @@ export function AnalysisResultCard({ result, isSample = false }: AnalysisResultC
         <div>
             <h3 className="text-sm font-medium text-muted-foreground mb-2">Latest News</h3>
             <div className="space-y-3">
-                {result.news.slice(0, 3).map((article, index) => (
+                {result.news.slice(0, 5).map((article, index) => (
                     <a key={index} href={article.url} target="_blank" rel="noopener noreferrer" className="block p-3 rounded-lg border bg-card hover:bg-secondary transition-colors">
                         <p className="font-semibold text-foreground/90">{article.title}</p>
                         <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{article.summary}</p>
