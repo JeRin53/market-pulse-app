@@ -17,7 +17,15 @@ const initialState: FormState = {
 
 const sampleResult: AnalyzeStockDataOutput = {
   ticker: 'SMPL',
-  momentumScore: 82,
+  momentum: {
+    returns: [0.012, -0.005, 0.02, -0.01, 0.015],
+    score: 0.0064
+  },
+  news: [
+    { title: 'Sample News: SMPL Innovations Announces Breakthrough in AI', summary: 'The company revealed a new technology that could revolutionize the industry.', url: '#' },
+    { title: 'Market Analysts Upgrade SMPL to "Strong Buy"', summary: 'Following recent positive earnings reports, analysts are optimistic about the stock\'s future.', url: '#'},
+    { title: 'SMPL Expands into European Markets', summary: 'The expansion is expected to significantly increase revenue streams for the company.', url: '#'}
+  ],
   pulse: 'bullish',
   explanation: 'This is a sample analysis. The stock shows strong positive momentum based on recent market trends and positive news coverage regarding its upcoming product launch. The overall sentiment is optimistic among analysts.',
 };
